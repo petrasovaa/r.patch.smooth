@@ -1,8 +1,23 @@
 <h2>DESCRIPTION</h2>
-Patches multiple rasters together by order (the first one is the most bottom one)
-and smoothes values along edges.
+Module fuses rasters representing elevation together by patching them and smoothing
+values along edges using either fixed or spatially variable overlap width.
+Spatially variable overlap width is given by the difference
+along the edge between the two rasters. Higher difference results in larger overlap width
+to smooth the transition.
+<p>
+r.patch.smooth can be used, for example, for updating older, lower resolution
+DEM (<b>input_b</b>) with newer, higher resolution DEM (<b>input_a</b>).
+Smoothing uses weighted averaging on the overlap of the rasters.
+r.patch.smooth supports 2 types of smoothing. The default one is
+simpler and uses fixed overlap width defined in <b>smooth_dist</b>.
+Since the differences along the seam line can vary,
+the second option uses spatially variable overlap width and can be activated with flag <b>-s</b>.
+The width is then computed based on the elevation differences along the edge and
+transition angle <b>transition_angle</b> controlling the steepness of the transition.
+If option <b>overlap</b> is specified, a map representing the spatially variable overlap
+is created and can be used for inspecting the fusion results.
 
-<h2>EXAMPLES</h2>
+
 
 <h2>SEE ALSO</h2>
 
@@ -14,4 +29,4 @@ and smoothes values along edges.
 
 Anna Petrasova, <a href="http://geospatial.ncsu.edu/osgeorel/">NCSU OSGeoREL</a><br>
 
-<p><i>Last changed: $Date: 2015-02-12 14:32:45 -0500 (Thu, 12 Feb 2015) $</i>
+<p><i>Last changed: $Date: 2016-02-12 14:32:45 -0500 (Thu, 12 Feb 2015) $</i>

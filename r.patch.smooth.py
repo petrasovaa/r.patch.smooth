@@ -50,16 +50,12 @@
 #%flag
 #% key: s
 #% description: Use spatially variable overlap
-#% type: double
 #%end
 #%rules
 #% collective: -s,transition_angle
 #% exclusive: transition_angle,smooth_dist
 #% excludes: smooth_dist,overlap
 #%end
-
-
-
 
 import os
 import sys
@@ -103,14 +99,15 @@ def main():
                                                                                           smooth=smooth_dist, A=input_A, B=input_B))
         return
     # smooth values of closest difference
+    # should this be parameter
     smooth_closest_difference_size = 15
 
     # difference
     gscript.mapcalc("{new} = abs({A} - {B})".format(new=tmp_absdiff, A=input_A, B=input_B))
 
-    # max difference in neighborhood
+    # take maximum difference from near cells
     gscript.run_command('r.neighbors', flags='c', input=tmp_absdiff, output=tmp_absdiff_smooth, method='maximum', size=5)
-  
+
     # closest value of difference
     gscript.mapcalc("{new} = if ({dist} > 0 && {dist} <= 1.5*nsres(), {diff}, null())".format(new=tmp_diff_overlap_1px,
                                                                                               dist=tmp_grow, diff=tmp_absdiff_smooth))
