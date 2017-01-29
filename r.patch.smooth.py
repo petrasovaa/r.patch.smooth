@@ -24,36 +24,43 @@
 #%end
 #%option G_OPT_R_INPUT
 #% key: input_a
+#% label: Name for input raster map A
 #%end
 #%option G_OPT_R_INPUT
 #% key: input_b
+#% label: Name for input raster map B
 #%end
 #%option G_OPT_R_OUTPUT
 #%end
 #%option G_OPT_R_OUTPUT
 #% key: overlap
+#% label: Name for raster map of spatially variable overlap
 #% required: no
 #%end
 #%option
 #% type: double
 #% key: smooth_dist
-#% description: Smoothing distance
+#% description: Smoothing distance in map units
 #% required: no
+#% guisection: Settings
 #%end
 #%option
 #% type: double
 #% key: transition_angle
-#% description: Angle of transition
+#% label: Angle of transition for spatially variable overlap
+#% description: Recommended values between 1 and 5 degrees
 #% required: no
-#% answer: 3
+#% guisection: Settings
 #%end
 #%flag
 #% key: s
 #% description: Use spatially variable overlap
+#% guisection: Settings
 #%end
 #%rules
 #% collective: -s,transition_angle
 #% exclusive: transition_angle,smooth_dist
+#% required: -s,smooth_dist
 #% excludes: smooth_dist,overlap
 #%end
 
