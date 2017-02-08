@@ -52,6 +52,26 @@
 #% required: no
 #% guisection: Settings
 #%end
+#%option
+#% type: integer
+#% key: parallel_smoothing
+#% label: Size of smoothing window for smoothing edges of spatially variable overlap zone
+#% description: Small value results in more rugged shape of the overlap zone, large values result in spatially non-variable overlap zone. Requires odd values.
+#% answer: 9
+#% options: 3-99
+#% required: no
+#% guisection: Settings
+#%end
+#%option
+#% type: integer
+#% key: difference_reach
+#% label: Look for maximum difference between surfaces in surrounding n cells from the edge
+#% description: Recommended values between 3 and 9
+#% answer: 3
+#% options: 2-100
+#% required: no
+#% guisection: Settings
+#%end
 #%flag
 #% key: s
 #% description: Use spatially variable overlap
@@ -86,6 +106,11 @@ def main():
     smooth_dist = options['smooth_dist']
     angle = options['transition_angle']
     simple = not flags['s']
+    # smooth values of closest difference
+    smooth_closest_difference_size = int(options['parallel_smoothing'])
+    if smooth_closest_difference_size % 2 == 0:
+        gscript.fatal(_("Option 'parallel_smoothing' requires odd number"))
+    difference_reach = int(options['difference_reach'])
 
     postfix = str(os.getpid())
     tmp_absdiff = "tmp_absdiff_" + postfix
@@ -105,15 +130,13 @@ def main():
                         "(1 - {grow}/{smooth}) * {B} + ({grow}/{smooth} * {A}))))".format(out=output, grow=tmp_grow,
                                                                                           smooth=smooth_dist, A=input_A, B=input_B))
         return
-    # smooth values of closest difference
-    # should this be parameter
-    smooth_closest_difference_size = 15
 
     # difference
     gscript.mapcalc("{new} = abs({A} - {B})".format(new=tmp_absdiff, A=input_A, B=input_B))
 
     # take maximum difference from near cells
-    gscript.run_command('r.neighbors', flags='c', input=tmp_absdiff, output=tmp_absdiff_smooth, method='maximum', size=5)
+    difference_reach = (difference_reach - 1) * 2 + 1
+    gscript.run_command('r.neighbors', flags='c', input=tmp_absdiff, output=tmp_absdiff_smooth, method='maximum', size=difference_reach)
 
     # closest value of difference
     gscript.mapcalc("{new} = if ({dist} > 0 && {dist} <= 1.5*nsres(), {diff}, null())".format(new=tmp_diff_overlap_1px,

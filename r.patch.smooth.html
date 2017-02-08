@@ -7,6 +7,7 @@ to smooth the transition.
 <p>
 r.patch.smooth can be used, for example, for updating older, lower resolution
 DEM (<b>input_b</b>) with newer, higher resolution DEM (<b>input_a</b>).
+Note that both DEMs must be aligned and have the same resolution.
 Smoothing uses weighted averaging on the overlap of the rasters.
 r.patch.smooth supports 2 types of smoothing. The default one is
 simpler and uses fixed overlap width defined in <b>smooth_dist</b>.
@@ -17,7 +18,25 @@ transition angle <b>transition_angle</b> controlling the steepness of the transi
 If option <b>overlap</b> is specified, a map representing the spatially variable overlap
 is created and can be used for inspecting the fusion results.
 
+<center>
+<img src="r_patch_smooth_overview.png" width=600 border=0><br>
+Difference between fixed overlap width and spatially variable overlap.
+</center>
 
+<p>
+For spatially variable overlap, options <b>parallel_smoothing</b>
+and <b>difference_reach</b> can be specified.
+Option <b>parallel_smoothing</b> smoothes the overlap zone in direction
+parallel to the edge.
+Option <b>difference_reach</b> enables to increase the sensitivity to higher
+differences on the edges by taking maximum difference values in the cells
+close to edges.
+
+<center>
+<img src="r_patch_smooth_parallel_smoothing.png" border=0><br>
+Effect of <b>parallel_smoothing</b> option shown on overlap zone (created by specifying <b>overlap</b> option).
+Image A shows result with value 3 and B with value 9.
+</center>
 
 <h2>SEE ALSO</h2>
 
