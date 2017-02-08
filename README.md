@@ -19,10 +19,9 @@ If option <b>overlap</b> is specified, a map representing the spatially variable
 is created and can be used for inspecting the fusion results.
 
 
-<center>
+
 <img src="r_patch_smooth_overview.png" width=600 border=0><br>
 Difference between fixed overlap width and spatially variable overlap.
-</center>
 
 <p>
 For spatially variable overlap, options <b>parallel_smoothing</b>
@@ -33,11 +32,12 @@ Option <b>difference_reach</b> enables to increase the sensitivity to higher
 differences on the edges by taking maximum difference values in the cells
 close to edges.
 
-<center>
 <img src="r_patch_smooth_parallel_smoothing.png" border=0><br>
 Effect of <b>parallel_smoothing</b> option shown on overlap zone (created by specifying <b>overlap</b> option).
 Image A shows result with value 3 and B with value 9.
-</center>
 
 
-r.patch.smooth must be run from GRASS GIS 7 environment.
+## Installation
+Module r.patch.smooth must be run from GRASS GIS 7 environment. Within GRASS session, run in command line:
+
+    g.extension r.patch.smooth url=https://github.com/petrasovaa/r.patch.smooth
