@@ -38,6 +38,14 @@
 #% required: no
 #%end
 #%option
+#% type: string
+#% key: blend_mask
+#% label: Raster containing edge of raster A which is not to be blended
+#% description: Useful when raster A has common edge with raster B
+#% required: no
+#% guisection: Settings
+#%end
+#%option
 #% type: double
 #% key: smooth_dist
 #% description: Smoothing distance in map units
@@ -105,6 +113,7 @@ def main():
     overlap = options['overlap']
     smooth_dist = options['smooth_dist']
     angle = options['transition_angle']
+    blend_mask = options['blend_mask']
     simple = not flags['s']
     # smooth values of closest difference
     smooth_closest_difference_size = int(options['parallel_smoothing'])
@@ -124,6 +133,23 @@ def main():
     TMP.extend([tmp_absdiff, tmp_absdiff_smooth, tmp_grow, tmp_diff_overlap_1px, tmp_value, tmp_value_smooth, tmp_stretch_dist, tmp_overlap])
 
     gscript.run_command('r.grow.distance', flags='n', input=input_A, distance=tmp_grow)
+    if simple and blend_mask:
+        tmp_mask1 = "tmp_mask1"
+        tmp_mask2 = "tmp_mask2"
+        tmp_mask3 = "tmp_mask3"
+        tmp_mask4 = "tmp_mask4"
+        TMP.extend([tmp_mask1, tmp_mask2, tmp_mask3, tmp_mask4])
+        # derive 1-pixel wide edge of A inside of the provided mask
+        gscript.mapcalc("{new} = if ({dist} > 0 && {dist} <= 1.5*nsres() && ! isnull({blend_mask}), 1, null())".format(new=tmp_mask1, dist=tmp_grow, blend_mask=blend_mask))
+        # create buffer around it
+        gscript.run_command('r.grow', input=tmp_mask1, output=tmp_mask2, flags='m', radius=smooth_dist, old=1, new=1)
+        # patch the buffer and A
+        gscript.mapcalc("{new} = if(! isnull({mask2}) || ! isnull({A}), 1, null())".format(A=input_A, mask2=tmp_mask2, new=tmp_mask3))
+        # inner grow
+        gscript.run_command('r.grow.distance', flags='n', input=tmp_mask3, distance=tmp_mask4)
+        # replace the distance inside the buffered area with 0
+        gscript.mapcalc('{new} = if(! isnull({A}), {m4}, 0)'.format(new=tmp_grow, A=input_A, m4=tmp_mask4), overwrite=True)
+
     if simple:
         gscript.mapcalc("{out} = if({grow} > {smooth}, {A}, if({grow} == 0, {B},"
                         "if (isnull({B}) && ! isnull({A}), {A},"
@@ -139,8 +165,13 @@ def main():
     gscript.run_command('r.neighbors', flags='c', input=tmp_absdiff, output=tmp_absdiff_smooth, method='maximum', size=difference_reach)
 
     # closest value of difference
-    gscript.mapcalc("{new} = if ({dist} > 0 && {dist} <= 1.5*nsres(), {diff}, null())".format(new=tmp_diff_overlap_1px,
-                                                                                              dist=tmp_grow, diff=tmp_absdiff_smooth))
+    if blend_mask:
+        # set the edge pixels to almost 0 where the mask is, results in no blending
+        gscript.mapcalc("{new} = if ({dist} > 0 && {dist} <= 1.5*nsres(), if(isnull({blend_mask}), {diff}, 0.00001), null())".format(new=tmp_diff_overlap_1px,
+                                                                                                  dist=tmp_grow, diff=tmp_absdiff_smooth, blend_mask=blend_mask))
+    else:
+        gscript.mapcalc("{new} = if ({dist} > 0 && {dist} <= 1.5*nsres(), {diff}, null())".format(new=tmp_diff_overlap_1px,
+                                                                                                  dist=tmp_grow, diff=tmp_absdiff_smooth))
     # closest value of difference
     gscript.run_command('r.grow.distance', input=tmp_diff_overlap_1px, value=tmp_value)
 
