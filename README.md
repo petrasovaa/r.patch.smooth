@@ -37,6 +37,14 @@ Effect of <b>parallel_smoothing</b> option shown on overlap zone (created by spe
 Image A shows result with value 3 and B with value 9.
 
 
+Option <b>blend_mask</b> (experimental) can be used to specify which edges of
+the input_a DEM should be excluded from the blending. This is useful when
+DEMs A and B have identical edges (on the coast, for example) and we want
+to preserve only A (not blend it with B along the coast).
+The <b>blend_mask</b> raster can be created by digitizing area approximately around the excluded edges,
+so that the edge of DEM A is inside the areas and the rest are NULLs.
+This option requires more testing.
+
 ## Installation
 Module r.patch.smooth must be run from GRASS GIS 7 environment. Within GRASS session, run in command line:
 
