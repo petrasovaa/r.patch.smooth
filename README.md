@@ -1,3 +1,10 @@
+## Note
+Please use version from GRASS GIS Addons repository, you can install it with:
+    
+    g.extension r.patch.smooth
+
+This repository will become eventually obsolete.
+
 # r.patch.smooth
 GRASS GIS module r.patch.smooth fuses rasters representing elevation together by patching them and smoothing
 values along edges using either fixed or spatially variable overlap width.
